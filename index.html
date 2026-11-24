@@ -451,7 +451,7 @@
     .canvas-wrapper {
       width: 100%;
       max-width: 100%;
-      aspect-ratio: 1920 / 1080;
+      aspect-ratio: 1522 / 1076;
       position: relative;
       box-shadow: 0 8px 24px rgba(24, 25, 38, 0.14);
       border-radius: 4px;
@@ -947,12 +947,12 @@
         <h2 class="section-title" id="heading-stage" style="margin: 0;">
           ภาพตัวอย่างขณะแก้ไข (โลโก้ ส่วนหัว และส่วนท้ายคงเดิม)
         </h2>
-        <span class="preview-meta">ขนาดมาตรฐาน 1920 × 1080 px</span>
+        <span class="preview-meta">ขนาดมาตรฐาน 1522 × 1076 px</span>
       </div>
 
       <div class="canvas-stage">
         <div class="canvas-wrapper">
-          <canvas id="editor-canvas" width="1920" height="1080" aria-label="พื้นที่แสดงตัวอย่างภาพนำเสนอผลการดำเนินงาน"></canvas>
+          <canvas id="editor-canvas" width="1522" height="1076" aria-label="พื้นที่แสดงตัวอย่างภาพนำเสนอผลการดำเนินงาน"></canvas>
         </div>
         <div class="stage-helper-bar">
           <span>คำแนะนำ: คลิกที่ช่องว่างบนภาพเพื่อเลือกรูป หรือคลิกลากที่รูปภาพเพื่อเลื่อนจัดตำแหน่ง</span>
@@ -966,7 +966,7 @@
     <div class="modal-dialog">
       <div class="modal-header">
         <div>
-          <h3 class="modal-title" id="modal-title">ตัวอย่างภาพพร้อมส่งออก (ไฟล์ JPG ขนาด 1920 × 1080 px)</h3>
+          <h3 class="modal-title" id="modal-title">ตัวอย่างภาพพร้อมส่งออก (ไฟล์ JPG ขนาด 1522 × 1076 px)</h3>
         </div>
         <button type="button" class="btn btn-secondary btn-sm" id="btn-close-modal">ปิดหน้าต่าง</button>
       </div>
@@ -988,16 +988,15 @@
     (function () {
       'use strict';
 
-      // Output canvas in standard 16:9 Full HD.
-      const CANVAS_W = 1920;
-      const CANVAS_H = 1080;
-      const SPRITE_W = 1522;
+      // Canvas dimensions matching attachment 1 (1522 x 1076)
+      const CANVAS_W = 1522;
+      const CANVAS_H = 1076;
       const PHOTO_Y = 184;
-      const PHOTO_H = 608; // y = 184..792
-      const CAPTION_Y = 792;
-      const CAPTION_H = 204; // y = 792..996
-      const FOOTER_Y = 996;
-      const FOOTER_H = 84; // y = 996..1080
+      const PHOTO_H = 604; // y = 184..788
+      const CAPTION_Y = 788;
+      const CAPTION_H = 204; // y = 788..992
+      const FOOTER_Y = 992;
+      const FOOTER_H = 84; // y = 992..1076
       const GAP = 10; // White separator thickness matching attachment 2
 
       // Application state (starts empty with friendly empty state)
@@ -1253,13 +1252,12 @@
         ctx.fillStyle = '#fdf2f5';
         ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
 
-        // Keep the original artwork at its native proportions and extend its edges.
-        if (spriteImg && spriteImg.complete && spriteImg.naturalWidth >= SPRITE_W) {
-          const edge = (CANVAS_W - SPRITE_W) / 2;
-          ctx.drawImage(spriteImg, 0, 0, 1, 176, 0, 0, edge, 176);
-          ctx.drawImage(spriteImg, 0, 0, SPRITE_W, 176, edge, 0, SPRITE_W, 176);
-          ctx.drawImage(spriteImg, SPRITE_W - 1, 0, 1, 176, edge + SPRITE_W, 0, edge, 176);
-          ctx.drawImage(canvas, 0, 174, CANVAS_W, 2, 0, 176, CANVAS_W, 8);
+        // 2. Draw Original Header (y = 0..184) from embedded sprite (1522 x 260)
+        if (spriteImg && spriteImg.complete && spriteImg.naturalWidth > 0) {
+          // Top 176 px of sprite is the exact original header
+          ctx.drawImage(spriteImg, 0, 0, CANVAS_W, 176, 0, 0, CANVAS_W, 176);
+          // Stretch bottom 2 px of header across y = 176..184 for a seamless edge
+          ctx.drawImage(spriteImg, 0, 174, CANVAS_W, 2, 0, 176, CANVAS_W, 8);
         }
 
         // 3. Draw Photo Area Background (white separator color for gaps in Layouts 2 & 3)
@@ -1338,8 +1336,12 @@
 
         // 6. Draw Caption Area Background (y = 788..992) with soft pink waves matching Attachment 1
         ctx.save();
-        ctx.fillStyle = '#fceef3';
-        ctx.fillRect(0, CAPTION_Y, CANVAS_W, CAPTION_H);
+        if (spriteImg && spriteImg.complete && spriteImg.naturalWidth > 0) {
+          ctx.drawImage(spriteImg, 0, 176, CANVAS_W, 2, 0, CAPTION_Y, CANVAS_W, CAPTION_H);
+        } else {
+          ctx.fillStyle = '#fceef3';
+          ctx.fillRect(0, CAPTION_Y, CANVAS_W, CAPTION_H);
+        }
 
         // Subtle soft pink curved wave layers matching attachment 1 caption backdrop
         ctx.beginPath();
@@ -1361,12 +1363,9 @@
         ctx.fill();
         ctx.restore();
 
-        // Preserve the original footer artwork without stretching text or logos.
-        if (spriteImg && spriteImg.complete && spriteImg.naturalWidth >= SPRITE_W) {
-          const edge = (CANVAS_W - SPRITE_W) / 2;
-          ctx.drawImage(spriteImg, 0, 176, 1, FOOTER_H, 0, FOOTER_Y, edge, FOOTER_H);
-          ctx.drawImage(spriteImg, 0, 176, SPRITE_W, FOOTER_H, edge, FOOTER_Y, SPRITE_W, FOOTER_H);
-          ctx.drawImage(spriteImg, SPRITE_W - 1, 176, 1, FOOTER_H, edge + SPRITE_W, FOOTER_Y, edge, FOOTER_H);
+        // 7. Draw Original Footer (y = 992..1076) from embedded sprite (rows 176..260)
+        if (spriteImg && spriteImg.complete && spriteImg.naturalWidth > 0) {
+          ctx.drawImage(spriteImg, 0, 176, CANVAS_W, FOOTER_H, 0, FOOTER_Y, CANVAS_W, FOOTER_H);
         }
 
         // 8. Draw Caption Headline & Body Text (Centered in y = 788..1000)
@@ -1403,7 +1402,7 @@
             bodyLines.length * bodyLineHeight;
 
           // Center vertically inside the caption region (792..998)
-          const regionCenterY = CAPTION_Y + CAPTION_H / 2;
+          const regionCenterY = CAPTION_Y + 105;
           let curY = regionCenterY - totalH / 2 + headLineHeight / 2;
 
           ctx.fillStyle = '#141936';
