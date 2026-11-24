@@ -451,7 +451,7 @@
     .canvas-wrapper {
       width: 100%;
       max-width: 100%;
-      aspect-ratio: 1522 / 1076;
+      aspect-ratio: 1522 / 1272;
       position: relative;
       box-shadow: 0 8px 24px rgba(24, 25, 38, 0.14);
       border-radius: 4px;
@@ -947,12 +947,12 @@
         <h2 class="section-title" id="heading-stage" style="margin: 0;">
           ภาพตัวอย่างขณะแก้ไข (โลโก้ ส่วนหัว และส่วนท้ายคงเดิม)
         </h2>
-        <span class="preview-meta">ขนาดมาตรฐาน 1522 × 1076 px</span>
+        <span class="preview-meta">ขนาดมาตรฐาน 1522 × 1272 px</span>
       </div>
 
       <div class="canvas-stage">
         <div class="canvas-wrapper">
-          <canvas id="editor-canvas" width="1522" height="1076" aria-label="พื้นที่แสดงตัวอย่างภาพนำเสนอผลการดำเนินงาน"></canvas>
+          <canvas id="editor-canvas" width="1522" height="1272" aria-label="พื้นที่แสดงตัวอย่างภาพนำเสนอผลการดำเนินงาน"></canvas>
         </div>
         <div class="stage-helper-bar">
           <span>คำแนะนำ: คลิกที่ช่องว่างบนภาพเพื่อเลือกรูป หรือคลิกลากที่รูปภาพเพื่อเลื่อนจัดตำแหน่ง</span>
@@ -966,7 +966,7 @@
     <div class="modal-dialog">
       <div class="modal-header">
         <div>
-          <h3 class="modal-title" id="modal-title">ตัวอย่างภาพพร้อมส่งออก (ไฟล์ JPG ขนาด 1522 × 1076 px)</h3>
+          <h3 class="modal-title" id="modal-title">ตัวอย่างภาพพร้อมส่งออก (ไฟล์ JPG ขนาด 1522 × 1272 px)</h3>
         </div>
         <button type="button" class="btn btn-secondary btn-sm" id="btn-close-modal">ปิดหน้าต่าง</button>
       </div>
@@ -988,15 +988,15 @@
     (function () {
       'use strict';
 
-      // Canvas dimensions matching attachment 1 (1522 x 1076)
+      // Canvas dimensions matching attachment 1 (1522 x 1272)
       const CANVAS_W = 1522;
-      const CANVAS_H = 1076;
+      const CANVAS_H = 1272;
       const PHOTO_Y = 184;
-      const PHOTO_H = 604; // y = 184..788
-      const CAPTION_Y = 788;
-      const CAPTION_H = 204; // y = 788..992
-      const FOOTER_Y = 992;
-      const FOOTER_H = 84; // y = 992..1076
+      const PHOTO_H = 800; // y = 184..984
+      const CAPTION_Y = 984;
+      const CAPTION_H = 204; // y = 984..1188
+      const FOOTER_Y = 1188;
+      const FOOTER_H = 84; // y = 1188..1272
       const GAP = 10; // White separator thickness matching attachment 2
 
       // Application state (starts empty with friendly empty state)
@@ -1048,8 +1048,8 @@
         } else {
           const halfW = Math.floor((CANVAS_W - GAP) / 2); // 756
           const rightW = CANVAS_W - halfW - GAP; // 756
-          const halfH = Math.floor((PHOTO_H - GAP) / 2); // 297
-          const botH = PHOTO_H - halfH - GAP; // 297
+          const halfH = Math.floor((PHOTO_H - GAP) / 2); // 395
+          const botH = PHOTO_H - halfH - GAP; // 395
           return [
             { x: 0, y: PHOTO_Y, w: halfW, h: PHOTO_H, label: 'ภาพที่ 1 (ฝั่งซ้ายเต็มความสูง)' },
             { x: halfW + GAP, y: PHOTO_Y, w: rightW, h: halfH, label: 'ภาพที่ 2 (ฝั่งขวาด้านบน)' },
@@ -1334,7 +1334,7 @@
           ctx.restore();
         }
 
-        // 6. Draw Caption Area Background (y = 788..992) with soft pink waves matching Attachment 1
+        // 6. Draw Caption Area Background (y = 984..1188) with soft pink waves matching Attachment 1
         ctx.save();
         if (spriteImg && spriteImg.complete && spriteImg.naturalWidth > 0) {
           ctx.drawImage(spriteImg, 0, 176, CANVAS_W, 2, 0, CAPTION_Y, CANVAS_W, CAPTION_H);
@@ -1363,12 +1363,12 @@
         ctx.fill();
         ctx.restore();
 
-        // 7. Draw Original Footer (y = 992..1076) from embedded sprite (rows 176..260)
+        // 7. Draw Original Footer (y = 1188..1272) from embedded sprite (rows 176..260)
         if (spriteImg && spriteImg.complete && spriteImg.naturalWidth > 0) {
           ctx.drawImage(spriteImg, 0, 176, CANVAS_W, FOOTER_H, 0, FOOTER_Y, CANVAS_W, FOOTER_H);
         }
 
-        // 8. Draw Caption Headline & Body Text (Centered in y = 788..1000)
+        // 8. Draw Caption Headline & Body Text (Centered in caption area)
         ctx.save();
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
