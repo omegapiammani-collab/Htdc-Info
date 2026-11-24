@@ -1024,7 +1024,7 @@
       const spriteImg = document.getElementById('brand-sprite-img');
       const overlayAssets = ['ministry.png', 'welfare.png'].map((name) => {
         const image = new Image();
-        image.onload = () => drawCanvas(false);
+        image.onload = () => { if (state.layout === 4) drawCanvas(false); };
         image.src = 'assets/layout4/' + name;
         return image;
       });
@@ -1362,21 +1362,13 @@
         ctx.fillStyle = '#fdf2f5';
         ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
 
-        // Retain the original pink header background and render the logos and text sharply.
+        // 2. Draw Original Header (y = 0..184) from embedded sprite (1522 x 260)
         if (spriteImg && spriteImg.complete && spriteImg.naturalWidth > 0) {
-          ctx.drawImage(spriteImg, 1100, 0, 1, 176, 0, 0, CANVAS_W, 176);
-          ctx.drawImage(spriteImg, 1100, 174, 1, 2, 0, 176, CANVAS_W, 8);
+          // Top 176 px of sprite is the exact original header
+          ctx.drawImage(spriteImg, 0, 0, CANVAS_W, 176, 0, 0, CANVAS_W, 176);
+          // Stretch bottom 2 px of header across y = 176..184 for a seamless edge
+          ctx.drawImage(spriteImg, 0, 174, CANVAS_W, 2, 0, 176, CANVAS_W, 8);
         }
-        const [ministry, welfare] = overlayAssets;
-        if (ministry.complete && ministry.naturalWidth) ctx.drawImage(ministry, 36, 16, 145, 145);
-        if (welfare.complete && welfare.naturalWidth) ctx.drawImage(welfare, 1290, 5, 210, 158);
-        ctx.save();
-        ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#a51862';
-        [['ศูนย์พัฒนาราษฎรบนพื้นที่สูงจังหวัดลำปาง', 34, 48, 700], ['กรมพัฒนาสังคมและสวัสดิการ', 27, 96, 500], ['กระทรวงการพัฒนาสังคมและความมั่นคงของมนุษย์', 27, 133, 500]].forEach(([line, size, y, weight]) => {
-          ctx.font = weight + ' ' + size + 'px "Prompt", "Sarabun", sans-serif';
-          ctx.fillText(line, 207, y, 1030);
-        });
-        ctx.restore();
 
         // 3. Draw Photo Area Background (white separator color for gaps in Layouts 2 & 3)
         ctx.fillStyle = '#ffffff';
@@ -1481,35 +1473,10 @@
         ctx.fill();
         ctx.restore();
 
-        // Preserve the original footer graphics and redraw the contact details.
+        // 7. Draw Original Footer (y = 1188..1272) from embedded sprite (rows 176..260)
         if (spriteImg && spriteImg.complete && spriteImg.naturalWidth > 0) {
           ctx.drawImage(spriteImg, 0, 176, CANVAS_W, FOOTER_H, 0, FOOTER_Y, CANVAS_W, FOOTER_H);
         }
-        ctx.save();
-        ctx.fillStyle = '#f02a9a';
-        ctx.fillRect(290, FOOTER_Y + 34, 1210, 50);
-        ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
-        ctx.font = '600 18px "Sarabun", "Prompt", sans-serif';
-        const footerEntries = [
-          { x: 314, textX: 345, max: 375, text: 'ศูนย์พัฒนาราษฎรบนพื้นที่สูงจังหวัดลำปาง', icon: 'facebook' },
-          { x: 735, textX: 766, max: 440, text: '120 หมู่ที่ 6 ตำบลนิคมพัฒนา อำเภอเมืองลำปาง จังหวัดลำปาง', icon: 'home' },
-          { x: 1232, textX: 1263, max: 210, text: '0 5482 5621', icon: 'phone' }
-        ];
-        footerEntries.forEach(item => {
-          const cx = item.x + 14, cy = FOOTER_Y + 59;
-          ctx.fillStyle = '#191d3a'; ctx.beginPath(); ctx.arc(cx, cy, 14, 0, Math.PI * 2); ctx.fill();
-          ctx.save(); ctx.translate(cx, cy); ctx.fillStyle = '#fff'; ctx.strokeStyle = '#fff';
-          ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-          if (item.icon === 'facebook') {
-            ctx.font = '700 23px Arial, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('f', 0, 2);
-          } else if (item.icon === 'home') {
-            ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-9, -1); ctx.lineTo(0, -9); ctx.lineTo(9, -1); ctx.moveTo(-6, 0); ctx.lineTo(-6, 7); ctx.lineTo(6, 7); ctx.lineTo(6, 0); ctx.stroke();
-          } else {
-            ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(-6, -7); ctx.bezierCurveTo(-10, -3, 3, 9, 7, 5); ctx.stroke();
-          }
-          ctx.restore(); ctx.fillStyle = '#fff'; ctx.fillText(item.text, item.textX, FOOTER_Y + 59, item.max);
-        });
-        ctx.restore();
 
         // 8. Draw Caption Headline & Body Text (Centered in caption area)
         ctx.save();
@@ -1747,7 +1714,7 @@
 
       // Generate clean export JPG Data URL
       function generateJpgDataUrl() {
-        if (overlayAssets.some(image => !image.complete || !image.naturalWidth)) {
+        if (state.layout === 4 && overlayAssets.some(image => !image.complete || !image.naturalWidth)) {
           throw new Error('กรุณารอให้โลโก้และส่วนท้ายโหลดเสร็จ แล้วลองอีกครั้ง');
         }
         drawCanvas(true);
