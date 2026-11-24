@@ -1028,6 +1028,12 @@
         image.src = 'assets/layout4/' + name;
         return image;
       });
+      const headerLogos = ['ministry.png', 'welfare.png'].map((name) => {
+        const image = new Image();
+        image.onload = () => { if (state.layout !== 4) drawCanvas(false); };
+        image.src = 'assets/header123/' + name;
+        return image;
+      });
       const footerIcons = ['facebook.png', 'home.png', 'phone.png'].map((name) => {
         const image = new Image();
         image.onload = () => { if (state.layout !== 4) drawCanvas(false); };
@@ -1368,6 +1374,15 @@
           ctx.drawImage(spriteImg, 0, 0, CANVAS_W, 176, 0, 0, CANVAS_W, 176);
           // Stretch bottom 2 px of header across y = 176..184 for a seamless edge
           ctx.drawImage(spriteImg, 0, 174, CANVAS_W, 2, 0, 176, CANVAS_W, 8);
+          // Retain the original heading text while replacing only the two logos.
+          ctx.drawImage(spriteImg, 18, 0, 1, 176, 30, 0, 165, 176);
+          ctx.drawImage(spriteImg, 1510, 0, 1, 176, 1320, 0, 182, 176);
+          if (headerLogos[0].complete && headerLogos[0].naturalWidth) {
+            ctx.drawImage(headerLogos[0], 42, 17, 146, 146);
+          }
+          if (headerLogos[1].complete && headerLogos[1].naturalWidth) {
+            ctx.drawImage(headerLogos[1], 1325, 28, 175, 132);
+          }
         }
 
         // 3. Draw Photo Area Background (white separator color for gaps in Layouts 2 & 3)
@@ -1740,7 +1755,7 @@
 
       // Generate clean export JPG Data URL
       function generateJpgDataUrl() {
-        if ((state.layout === 4 ? overlayAssets : footerIcons).some(image => !image.complete || !image.naturalWidth)) {
+        if ((state.layout === 4 ? overlayAssets : [...headerLogos, ...footerIcons]).some(image => !image.complete || !image.naturalWidth)) {
           throw new Error('กรุณารอให้โลโก้และส่วนท้ายโหลดเสร็จ แล้วลองอีกครั้ง');
         }
         drawCanvas(true);
