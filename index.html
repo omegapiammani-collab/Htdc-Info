@@ -827,7 +827,7 @@
 
       <nav class="header-actions" id="header-actions-menu">
         <button type="button" class="btn btn-secondary" id="btn-stage-preview">ดูภาพตัวอย่างขนาดจริง</button>
-        <button type="button" class="btn btn-primary" id="btn-stage-export">ส่งออกเป็นไฟล์ JPG</button>
+        <button type="button" class="btn btn-primary" id="btn-stage-export">บันทึกไฟล์ JPG</button>
       </nav>
     </div>
   </header>
@@ -1640,9 +1640,9 @@
 
       // Trigger standard Blob JPG download or Mobile/Tablet Save-to-Gallery Share Sheet
       async function downloadJpgNow() {
-        const jpgUrl = openPreviewModal();
         const fileName = 'ข่าวประชาสัมพันธ์-ผลการดำเนินงาน.jpg';
         try {
+          const jpgUrl = generateJpgDataUrl();
           const blob = dataUrlToBlob(jpgUrl);
           if (currentBlobUrl) {
             URL.revokeObjectURL(currentBlobUrl);
@@ -1678,7 +1678,7 @@
             if (link.parentNode) link.parentNode.removeChild(link);
           }, 250);
         } catch (err) {
-          document.getElementById('modal-export-status').textContent = 'ไม่สามารถดาวน์โหลดอัตโนมัติได้ กรุณากดค้างหรือคลิกขวาที่ภาพเพื่อบันทึก';
+          alert('ไม่สามารถบันทึกไฟล์ JPG ได้ กรุณาลองใหม่อีกครั้ง');
         }
       }
 
