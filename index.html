@@ -237,7 +237,7 @@
     /* Layout Picker Grid (Matches รูปแบบ 1-3.jpg) */
     .layout-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: var(--space-2);
     }
 
@@ -674,7 +674,7 @@
       }
 
       .layout-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 6px;
       }
 
@@ -873,6 +873,10 @@
             </div>
             <span class="layout-label">รูปแบบที่ 3<br><span style="white-space: nowrap">(3 ภาพ)</span></span>
           </button>
+          <button type="button" class="layout-option" data-layout="4" role="radio" aria-checked="false">
+            <div class="layout-diagram"><div class="diagram-row"><div class="diagram-cell"></div></div><div style="height: 8px; background: #9d174f; border-radius: 2px;"></div></div>
+            <span class="layout-label">รูปแบบที่ 4<br><span style="white-space: nowrap">(1 ภาพ + ข้อความ)</span></span>
+          </button>
         </div>
       </section>
 
@@ -989,8 +993,8 @@
       'use strict';
 
       // Canvas dimensions matching attachment 1 (1522 x 1272)
-      const CANVAS_W = 1522;
-      const CANVAS_H = 1272;
+      let CANVAS_W = 1522;
+      let CANVAS_H = 1272;
       const PHOTO_Y = 184;
       const PHOTO_H = 800; // y = 184..984
       const CAPTION_Y = 984;
@@ -1012,11 +1016,18 @@
         body: '',
         dateText: '',
         consentText: '*ได้รับการยินยอมให้เผยแพร่ประชาสัมพันธ์',
-        fontScale: (22 * 4 / 3) / 29
+        fontScale: (22 * 4 / 3) / 29,
+        fontPoints: { normal: 22, overlay: 46 }
       };
 
       // DOM elements
       const spriteImg = document.getElementById('brand-sprite-img');
+      const overlayAssets = ['ministry.png', 'welfare.png', 'footer.jpg'].map((name) => {
+        const image = new Image();
+        image.onload = () => { if (state.layout === 4) drawCanvas(false); };
+        image.src = 'assets/layout4/' + name;
+        return image;
+      });
       const canvas = document.getElementById('editor-canvas');
       const ctx = canvas.getContext('2d');
       const slotsContainer = document.getElementById('slots-container');
@@ -1035,6 +1046,9 @@
 
       // Compute slot rectangles based on selected layout (1, 2, or 3)
       function getSlotRects(layoutNum) {
+        if (layoutNum === 4) {
+          return [{ x: 0, y: 0, w: 1920, h: 972, label: 'ภาพที่ 1 (ภาพพื้นหลังเต็มพื้นที่)' }];
+        }
         if (layoutNum === 1) {
           return [
             { x: 0, y: PHOTO_Y, w: CANVAS_W, h: PHOTO_H, label: 'ภาพที่ 1 (ภาพเดี่ยวเต็มกรอบ)' }
@@ -1243,9 +1257,73 @@
         return finalLines;
       }
 
+      // Layout 4: photo with heading, logos and large caption drawn over it.
+      function drawOverlayLayout(isExport) {
+        const rect = getSlotRects(4)[0];
+        const slot = state.slots[0];
+        ctx.fillStyle = '#d8eff8';
+        ctx.fillRect(0, 0, 1920, 972);
+        if (slot.img) drawImageCover(ctx, slot.img, rect, slot.scale, slot.offsetX, slot.offsetY);
+        else if (!isExport) {
+          ctx.save(); ctx.strokeStyle = '#6bb8d6'; ctx.lineWidth = 4; ctx.setLineDash([12, 9]);
+          ctx.strokeRect(18, 18, 1884, 936); ctx.setLineDash([]);
+          ctx.fillStyle = '#1b5a75'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.font = '600 34px "Prompt", "Sarabun", sans-serif';
+          ctx.fillText('คลิกเพื่ออัปโหลดภาพพื้นหลัง', 960, 460); ctx.restore();
+        }
+        const [ministry, welfare, footer] = overlayAssets;
+        if (ministry.complete && ministry.naturalWidth) ctx.drawImage(ministry, 36, 14, 140, 140);
+        if (welfare.complete && welfare.naturalWidth) ctx.drawImage(welfare, 1655, 12, 240, 180);
+        ctx.save(); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+        ctx.lineJoin = 'round'; ctx.strokeStyle = 'white'; ctx.fillStyle = '#9d174f'; ctx.lineWidth = 6;
+        [['ศูนย์พัฒนาราษฎรบนพื้นที่สูงจังหวัดลำปาง', 34, 20], ['กรมพัฒนาสังคมและสวัสดิการ', 27, 65], ['กระทรวงการพัฒนาสังคมและความมั่นคงของมนุษย์', 27, 101]].forEach(([line,size,y]) => {
+          ctx.font = '700 ' + size + 'px "Prompt", "Sarabun", sans-serif';
+          ctx.strokeText(line, 196, y); ctx.fillText(line, 196, y);
+        });
+        ctx.restore();
+        if (footer.complete && footer.naturalWidth) ctx.drawImage(footer, 0, 972, 1920, 108);
+        else { ctx.fillStyle = '#f77e96'; ctx.fillRect(0, 972, 1920, 108); }
+
+        ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+        const available = 280, width = 1640;
+        let scale = state.fontScale, hs, bs, ds, hl, bl, dateLines, height;
+        for (let i = 0; i < 32; i++) {
+          hs = Math.max(1, 35 * scale); bs = Math.max(1, 29 * scale); ds = Math.max(1, 27 * scale);
+          ctx.font = '700 ' + hs + 'px "Prompt", "Sarabun", sans-serif'; hl = wrapLines(ctx, state.headline, width);
+          ctx.font = '600 ' + bs + 'px "Prompt", "Sarabun", sans-serif'; bl = wrapLines(ctx, state.body, width);
+          ctx.font = '700 ' + ds + 'px "Prompt", "Sarabun", sans-serif'; dateLines = wrapLines(ctx, state.dateText, width);
+          height = dateLines.length * ds * 1.35 + hl.length * hs * 1.35 + bl.length * bs * 1.35 + (dateLines.length && (hl.length || bl.length) ? 14 : 0) + (hl.length && bl.length ? 8 : 0);
+          if (height <= available || scale <= .035) break;
+          scale *= .85;
+        }
+        document.getElementById('caption-fit-note').textContent = height > available ? 'ข้อความยาวเกินพื้นที่ภาพ กรุณาลดข้อความ' : scale < state.fontScale * .99 ? 'ระบบลดขนาดข้อความอัตโนมัติเพื่อให้อยู่ในกรอบภาพ' : '';
+        const lines = [];
+        dateLines.forEach(x => lines.push({text:x,size:ds,weight:700}));
+        if (dateLines.length && (hl.length || bl.length)) lines.push({gap:14});
+        hl.forEach(x => lines.push({text:x,size:hs,weight:700}));
+        if (hl.length && bl.length) lines.push({gap:8});
+        bl.forEach(x => lines.push({text:x,size:bs,weight:600}));
+        let y = 940 - height;
+        ctx.beginPath(); ctx.rect(0, 640, 1920, 308); ctx.clip();
+        for (const line of lines) {
+          if (line.gap) { y += line.gap; continue; }
+          const lineHeight = line.size * 1.35; y += lineHeight / 2;
+          ctx.font = line.weight + ' ' + line.size + 'px "Prompt", "Sarabun", sans-serif';
+          ctx.strokeStyle = '#fff'; ctx.fillStyle = '#111'; ctx.lineWidth = Math.max(3, line.size * .13);
+          ctx.strokeText(line.text, 960, y); ctx.fillText(line.text, 960, y); y += lineHeight / 2;
+        }
+        ctx.restore();
+        if (state.consentText.trim()) {
+          ctx.save(); ctx.font = '500 20px "Sarabun", sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+          ctx.lineWidth = 4; ctx.strokeStyle = '#fff'; ctx.fillStyle = '#111';
+          ctx.strokeText(state.consentText.trim(), 20, 960); ctx.fillText(state.consentText.trim(), 20, 960); ctx.restore();
+        }
+      }
+
       // Main Canvas Render Function
       // isExport = true hides interactive empty-slot dashed guides if needed
       function drawCanvas(isExport) {
+        if (state.layout === 4) { ctx.clearRect(0, 0, CANVAS_W, CANVAS_H); drawOverlayLayout(isExport); return; }
         ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
 
         // 1. Base background fill
@@ -1444,7 +1522,17 @@
       layoutButtons.forEach((btn) => {
         btn.addEventListener('click', () => {
           const selected = Number(btn.getAttribute('data-layout'));
+          state.fontPoints[state.layout === 4 ? 'overlay' : 'normal'] = Number(inputFontsize.value);
           state.layout = selected;
+          CANVAS_W = selected === 4 ? 1920 : 1522;
+          CANVAS_H = selected === 4 ? 1080 : 1272;
+          canvas.width = CANVAS_W; canvas.height = CANVAS_H;
+          document.querySelector('.canvas-wrapper').style.aspectRatio = CANVAS_W + ' / ' + CANVAS_H;
+          document.querySelector('.preview-meta').textContent = 'ขนาดภาพ ' + CANVAS_W + ' × ' + CANVAS_H + ' px';
+          document.getElementById('modal-title').textContent = 'ตัวอย่างภาพพร้อมส่งออก (ไฟล์ JPG ขนาด ' + CANVAS_W + ' × ' + CANVAS_H + ' px)';
+          inputFontsize.value = state.fontPoints[selected === 4 ? 'overlay' : 'normal'];
+          state.fontScale = (Number(inputFontsize.value) * 4 / 3) / 29;
+          fontsizeLabel.textContent = inputFontsize.value + ' pt';
           layoutButtons.forEach((b) => {
             const active = b === btn;
             b.classList.toggle('active', active);
@@ -1594,6 +1682,9 @@
 
       // Generate clean export JPG Data URL
       function generateJpgDataUrl() {
+        if (state.layout === 4 && overlayAssets.some(image => !image.complete || !image.naturalWidth)) {
+          throw new Error('กรุณารอให้โลโก้และส่วนท้ายโหลดเสร็จ แล้วลองอีกครั้ง');
+        }
         drawCanvas(true);
         const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
         drawCanvas(false);
@@ -1618,7 +1709,9 @@
       let previousFocus = null;
       function openPreviewModal() {
         if (!previewModal.classList.contains('open')) previousFocus = document.activeElement;
-        const jpgUrl = generateJpgDataUrl();
+        let jpgUrl;
+        try { jpgUrl = generateJpgDataUrl(); }
+        catch (error) { alert(error.message); return; }
         previewJpgImg.src = jpgUrl;
         previewModal.classList.add('open');
         document.getElementById('btn-close-modal').focus();
@@ -1691,7 +1784,7 @@
             if (link.parentNode) link.parentNode.removeChild(link);
           }, 250);
         } catch (err) {
-          alert('ไม่สามารถบันทึกไฟล์ JPG ได้ กรุณาลองใหม่อีกครั้ง');
+          alert(err.message || 'ไม่สามารถบันทึกไฟล์ JPG ได้ กรุณาลองใหม่อีกครั้ง');
         }
       }
 
