@@ -1022,7 +1022,7 @@
 
       // DOM elements
       const spriteImg = document.getElementById('brand-sprite-img');
-      const overlayAssets = ['ministry.png', 'welfare.png', 'footer.jpg'].map((name) => {
+      const overlayAssets = ['ministry.png', 'welfare.png', 'footer.jpg', 'illustration.png'].map((name) => {
         const image = new Image();
         image.onload = () => { if (state.layout === 4) drawCanvas(false); };
         image.src = 'assets/layout4/' + name;
@@ -1271,7 +1271,7 @@
           ctx.font = '600 34px "Prompt", "Sarabun", sans-serif';
           ctx.fillText('คลิกเพื่ออัปโหลดภาพพื้นหลัง', 960, 460); ctx.restore();
         }
-        const [ministry, welfare, footer] = overlayAssets;
+        const [ministry, welfare, footer, illustration] = overlayAssets;
         if (ministry.complete && ministry.naturalWidth) ctx.drawImage(ministry, 36, 14, 140, 140);
         if (welfare.complete && welfare.naturalWidth) ctx.drawImage(welfare, 1655, 12, 240, 180);
         ctx.save(); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
@@ -1283,6 +1283,7 @@
         ctx.restore();
         if (footer.complete && footer.naturalWidth) ctx.drawImage(footer, 0, 972, 1920, 108);
         else { ctx.fillStyle = '#f77e96'; ctx.fillRect(0, 972, 1920, 108); }
+        if (illustration.complete && illustration.naturalWidth) ctx.drawImage(illustration, 1560, 805, 360, 275);
 
         ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
         const available = 280, width = 1640;
