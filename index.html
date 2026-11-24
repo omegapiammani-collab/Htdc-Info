@@ -792,6 +792,7 @@
     .preview-header { margin-bottom: 16px; }
     .canvas-stage { background: #eee7ea; padding: 16px; }
     .stage-helper-bar { line-height: 1.6; }
+    .caption-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
     .preview-link { display: inline-block; color: #9d174f; font-size: 13px; font-weight: 600; margin: 4px 0 12px; text-underline-offset: 3px; }
     @media (max-width: 767px) {
       .app-header { position: static; }
@@ -891,11 +892,11 @@
       <section class="card" aria-labelledby="heading-caption">
         <h2 class="section-title" id="heading-caption">
           <span><span class="step-badge">3</span>แก้ไขข้อความบรรยายใต้ภาพและวันที่</span>
-          <span style="display: inline-flex; gap: 6px; flex-wrap: wrap;">
-            <button type="button" class="btn btn-secondary btn-sm" id="btn-fill-example">ใช้ข้อความตัวอย่าง</button>
-            <button type="button" class="btn btn-secondary btn-sm" id="btn-clear-text">ล้างข้อความ</button>
-          </span>
         </h2>
+        <div class="caption-actions">
+          <button type="button" class="btn btn-secondary btn-sm" id="btn-fill-example">ใช้ข้อความตัวอย่าง</button>
+          <button type="button" class="btn btn-secondary btn-sm" id="btn-clear-text">ล้างข้อความ</button>
+        </div>
 
         <a class="preview-link" href="#preview-panel">ดูภาพตัวอย่าง ↑</a>
         <div class="form-group">
