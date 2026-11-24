@@ -932,9 +932,9 @@
         <div class="form-group" style="margin-top: 12px;">
           <label class="form-label" for="input-fontsize">
             <span>ขนาดตัวอักษรคำบรรยายใต้ภาพ</span>
-            <span class="form-hint" id="fontsize-label">100% (มาตรฐาน)</span>
+            <span class="form-hint" id="fontsize-label">22 pt</span>
           </label>
-          <input type="range" id="input-fontsize" min="80" max="240" step="1" value="100">
+          <input type="range" id="input-fontsize" min="10" max="50" step="1" value="22">
           <p id="caption-fit-note" class="form-hint" role="status" aria-live="polite"></p>
         </div>
       </section>
@@ -1012,7 +1012,7 @@
         body: '',
         dateText: '',
         consentText: '*ได้รับการยินยอมให้เผยแพร่ประชาสัมพันธ์',
-        fontScale: 1.0
+        fontScale: (22 * 4 / 3) / 29
       };
 
       // DOM elements
@@ -1556,9 +1556,9 @@
       });
 
       inputFontsize.addEventListener('input', () => {
-        const pct = Number(inputFontsize.value);
-        state.fontScale = pct / 100;
-        fontsizeLabel.textContent = pct + '%';
+        const points = Number(inputFontsize.value);
+        state.fontScale = (points * 4 / 3) / 29;
+        fontsizeLabel.textContent = points + ' pt';
         drawCanvas(false);
       });
 
