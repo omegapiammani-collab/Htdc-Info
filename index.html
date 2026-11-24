@@ -1022,7 +1022,7 @@
 
       // DOM elements
       const spriteImg = document.getElementById('brand-sprite-img');
-      const overlayAssets = ['ministry.png', 'welfare.png', 'footer.jpg', 'illustration.png'].map((name) => {
+      const overlayAssets = ['ministry.png', 'welfare.png', 'footer.jpg'].map((name) => {
         const image = new Image();
         image.onload = () => { if (state.layout === 4) drawCanvas(false); };
         image.src = 'assets/layout4/' + name;
@@ -1047,7 +1047,7 @@
       // Compute slot rectangles based on selected layout (1, 2, or 3)
       function getSlotRects(layoutNum) {
         if (layoutNum === 4) {
-          return [{ x: 0, y: 0, w: 1920, h: 972, label: 'ภาพที่ 1 (ภาพพื้นหลังเต็มพื้นที่)' }];
+          return [{ x: 0, y: 0, w: 1920, h: 1012, label: 'ภาพที่ 1 (ภาพพื้นหลังเต็มพื้นที่)' }];
         }
         if (layoutNum === 1) {
           return [
@@ -1262,16 +1262,16 @@
         const rect = getSlotRects(4)[0];
         const slot = state.slots[0];
         ctx.fillStyle = '#d8eff8';
-        ctx.fillRect(0, 0, 1920, 972);
+        ctx.fillRect(0, 0, 1920, 1012);
         if (slot.img) drawImageCover(ctx, slot.img, rect, slot.scale, slot.offsetX, slot.offsetY);
         else if (!isExport) {
           ctx.save(); ctx.strokeStyle = '#6bb8d6'; ctx.lineWidth = 4; ctx.setLineDash([12, 9]);
-          ctx.strokeRect(18, 18, 1884, 936); ctx.setLineDash([]);
+          ctx.strokeRect(18, 18, 1884, 976); ctx.setLineDash([]);
           ctx.fillStyle = '#1b5a75'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
           ctx.font = '600 34px "Prompt", "Sarabun", sans-serif';
           ctx.fillText('คลิกเพื่ออัปโหลดภาพพื้นหลัง', 960, 460); ctx.restore();
         }
-        const [ministry, welfare, footer, illustration] = overlayAssets;
+        const [ministry, welfare, footer] = overlayAssets;
         if (ministry.complete && ministry.naturalWidth) ctx.drawImage(ministry, 36, 14, 140, 140);
         if (welfare.complete && welfare.naturalWidth) ctx.drawImage(welfare, 1655, 12, 240, 180);
         ctx.save(); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
@@ -1281,9 +1281,8 @@
           ctx.strokeText(line, 196, y); ctx.fillText(line, 196, y);
         });
         ctx.restore();
-        if (footer.complete && footer.naturalWidth) ctx.drawImage(footer, 0, 972, 1920, 108);
-        else { ctx.fillStyle = '#f77e96'; ctx.fillRect(0, 972, 1920, 108); }
-        if (illustration.complete && illustration.naturalWidth) ctx.drawImage(illustration, 1560, 805, 360, 275);
+        if (footer.complete && footer.naturalWidth) ctx.drawImage(footer, 0, 1012, 1920, 68);
+        else { ctx.fillStyle = '#f77e96'; ctx.fillRect(0, 1012, 1920, 68); }
 
         ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
         const available = 280, width = 1640;
@@ -1304,8 +1303,8 @@
         hl.forEach(x => lines.push({text:x,size:hs,weight:700}));
         if (hl.length && bl.length) lines.push({gap:8});
         bl.forEach(x => lines.push({text:x,size:bs,weight:600}));
-        let y = 940 - height;
-        ctx.beginPath(); ctx.rect(0, 640, 1920, 308); ctx.clip();
+        let y = 980 - height;
+        ctx.beginPath(); ctx.rect(0, 680, 1920, 308); ctx.clip();
         for (const line of lines) {
           if (line.gap) { y += line.gap; continue; }
           const lineHeight = line.size * 1.35; y += lineHeight / 2;
@@ -1317,7 +1316,7 @@
         if (state.consentText.trim()) {
           ctx.save(); ctx.font = '500 20px "Sarabun", sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
           ctx.lineWidth = 4; ctx.strokeStyle = '#fff'; ctx.fillStyle = '#111';
-          ctx.strokeText(state.consentText.trim(), 20, 960); ctx.fillText(state.consentText.trim(), 20, 960); ctx.restore();
+          ctx.strokeText(state.consentText.trim(), 20, 1000); ctx.fillText(state.consentText.trim(), 20, 1000); ctx.restore();
         }
       }
 
