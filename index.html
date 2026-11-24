@@ -1028,6 +1028,12 @@
         image.src = 'assets/layout4/' + name;
         return image;
       });
+      const footerIcons = ['facebook.png', 'home.png', 'phone.png'].map((name) => {
+        const image = new Image();
+        image.onload = () => { if (state.layout !== 4) drawCanvas(false); };
+        image.src = 'assets/footer123/' + name;
+        return image;
+      });
       const canvas = document.getElementById('editor-canvas');
       const ctx = canvas.getContext('2d');
       const slotsContainer = document.getElementById('slots-container');
@@ -1470,6 +1476,32 @@
         // 7. Draw Original Footer (y = 1188..1272) from embedded sprite (rows 176..260)
         if (spriteImg && spriteImg.complete && spriteImg.naturalWidth > 0) {
           ctx.drawImage(spriteImg, 0, 176, CANVAS_W, FOOTER_H, 0, FOOTER_Y, CANVAS_W, FOOTER_H);
+
+          // Replace the rasterized footer labels with crisp text and the supplied icons.
+          // Stretch a clean strip of the existing pink band to retain its original color.
+          ctx.drawImage(spriteImg, 320, 209, 1, 51, 310, FOOTER_Y + 33, 1095, 51);
+          ctx.save();
+          ctx.fillStyle = '#fff';
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'middle';
+          ctx.font = '600 19px "Sarabun", "Prompt", sans-serif';
+          const footerItems = [
+            { image: footerIcons[0], x: 340, textX: 390, width: 330, label: 'ศูนย์พัฒนาราษฎรบนพื้นที่สูงจังหวัดลำปาง' },
+            { image: footerIcons[1], x: 730, textX: 780, width: 450, label: '120 หมู่ที่ 6 ตำบลนิคมพัฒนา อำเภอเมืองลำปาง จังหวัดลำปาง' },
+            { image: footerIcons[2], x: 1243, textX: 1292, width: 110, label: '0 5482 5621' }
+          ];
+          footerItems.forEach(({ image, x, textX, width, label }) => {
+            if (image.complete && image.naturalWidth) {
+              ctx.save();
+              ctx.beginPath();
+              ctx.arc(x + 19, FOOTER_Y + 58, 19, 0, Math.PI * 2);
+              ctx.clip();
+              ctx.drawImage(image, x, FOOTER_Y + 39, 38, 38);
+              ctx.restore();
+            }
+            ctx.fillText(label, textX, FOOTER_Y + 58, width);
+          });
+          ctx.restore();
         }
 
         // 8. Draw Caption Headline & Body Text (Centered in caption area)
@@ -1708,7 +1740,7 @@
 
       // Generate clean export JPG Data URL
       function generateJpgDataUrl() {
-        if (state.layout === 4 && overlayAssets.some(image => !image.complete || !image.naturalWidth)) {
+        if ((state.layout === 4 ? overlayAssets : footerIcons).some(image => !image.complete || !image.naturalWidth)) {
           throw new Error('กรุณารอให้โลโก้และส่วนท้ายโหลดเสร็จ แล้วลองอีกครั้ง');
         }
         drawCanvas(true);
