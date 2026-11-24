@@ -1022,7 +1022,7 @@
 
       // DOM elements
       const spriteImg = document.getElementById('brand-sprite-img');
-      const overlayAssets = ['ministry.png', 'welfare.png'].map((name) => {
+      const overlayAssets = ['ministry.png', 'welfare.png', 'facebook.png', 'home.png', 'phone.png'].map((name) => {
         const image = new Image();
         image.onload = () => { if (state.layout === 4) drawCanvas(false); };
         image.src = 'assets/layout4/' + name;
@@ -1295,22 +1295,16 @@
           { x: 1455, label: '0 5482 5621', textX: 1510, max: 260, icon: 'phone' }
         ];
         footerItems.forEach(item => {
-          const cx = item.x + 25, cy = 1046;
-          ctx.fillStyle = '#1687dc';
-          ctx.beginPath(); ctx.arc(cx, cy, 25, 0, Math.PI * 2); ctx.fill();
-          ctx.save(); ctx.translate(cx, cy); ctx.strokeStyle = '#fff'; ctx.fillStyle = '#fff';
-          ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-          if (item.icon === 'facebook') {
-            ctx.fill(new Path2D('M 4 -18 L 10 -18 L 10 -10 L 5 -10 C 3 -10 2 -9 2 -6 L 2 -3 L 10 -3 L 9 4 L 2 4 L 2 20 L -6 20 L -6 4 L -11 4 L -11 -3 L -6 -3 L -6 -7 C -6 -14 -2 -18 4 -18 Z'));
-          } else if (item.icon === 'home') {
-            ctx.lineWidth = 3.5;
-            ctx.beginPath(); ctx.moveTo(-17, -2); ctx.lineTo(0, -17); ctx.lineTo(17, -2); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(-12, -1); ctx.lineTo(-12, 14); ctx.lineTo(-4, 14); ctx.lineTo(-4, 5); ctx.lineTo(4, 5); ctx.lineTo(4, 14); ctx.lineTo(12, 14); ctx.lineTo(12, -1); ctx.stroke();
-          } else {
-            ctx.lineWidth = 7;
-            ctx.beginPath(); ctx.moveTo(-10, -13); ctx.bezierCurveTo(-18, -6, 5, 17, 13, 10); ctx.stroke();
+          const iconIndex = { facebook: 2, home: 3, phone: 4 }[item.icon];
+          const icon = overlayAssets[iconIndex];
+          if (icon.complete && icon.naturalWidth) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(item.x + 25, 1046, 25, 0, Math.PI * 2);
+            ctx.clip();
+            ctx.drawImage(icon, item.x, 1021, 50, 50);
+            ctx.restore();
           }
-          ctx.restore();
           ctx.fillStyle = '#fff';
           ctx.fillText(item.label, item.textX, 1046, item.max);
         });
