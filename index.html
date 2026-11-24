@@ -1022,7 +1022,7 @@
 
       // DOM elements
       const spriteImg = document.getElementById('brand-sprite-img');
-      const overlayAssets = ['ministry.png', 'welfare.png', 'footer.jpg'].map((name) => {
+      const overlayAssets = ['ministry.png', 'welfare.png'].map((name) => {
         const image = new Image();
         image.onload = () => { if (state.layout === 4) drawCanvas(false); };
         image.src = 'assets/layout4/' + name;
@@ -1271,7 +1271,7 @@
           ctx.font = '600 34px "Prompt", "Sarabun", sans-serif';
           ctx.fillText('คลิกเพื่ออัปโหลดภาพพื้นหลัง', 960, 460); ctx.restore();
         }
-        const [ministry, welfare, footer] = overlayAssets;
+        const [ministry, welfare] = overlayAssets;
         if (ministry.complete && ministry.naturalWidth) ctx.drawImage(ministry, 36, 14, 140, 140);
         if (welfare.complete && welfare.naturalWidth) ctx.drawImage(welfare, 1655, 12, 240, 180);
         ctx.save(); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
@@ -1281,8 +1281,40 @@
           ctx.strokeText(line, 196, y); ctx.fillText(line, 196, y);
         });
         ctx.restore();
-        if (footer.complete && footer.naturalWidth) ctx.drawImage(footer, 0, 1012, 1920, 68);
-        else { ctx.fillStyle = '#f77e96'; ctx.fillRect(0, 1012, 1920, 68); }
+        // Draw footer text and icons at export resolution for crisp edges.
+        ctx.save();
+        ctx.fillStyle = '#ff397e';
+        ctx.fillRect(0, 1012, 1920, 68);
+        ctx.textBaseline = 'middle';
+        ctx.textAlign = 'left';
+        ctx.font = '500 23px "Sarabun", "Prompt", sans-serif';
+        ctx.fillStyle = '#fff';
+        const footerItems = [
+          { x: 230, label: 'ศูนย์พัฒนาราษฎรบนพื้นที่สูงจังหวัดลำปาง', textX: 285, max: 450, icon: 'facebook' },
+          { x: 750, label: '120 หมู่ที่ 6 ตำบลนิคมพัฒนา อำเภอเมืองลำปาง จังหวัดลำปาง', textX: 805, max: 600, icon: 'home' },
+          { x: 1455, label: '0 5482 5621', textX: 1510, max: 260, icon: 'phone' }
+        ];
+        footerItems.forEach(item => {
+          const cx = item.x + 25, cy = 1046;
+          ctx.fillStyle = '#1687dc';
+          ctx.beginPath(); ctx.arc(cx, cy, 25, 0, Math.PI * 2); ctx.fill();
+          ctx.save(); ctx.translate(cx, cy); ctx.strokeStyle = '#fff'; ctx.fillStyle = '#fff';
+          ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+          if (item.icon === 'facebook') {
+            ctx.fill(new Path2D('M 4 -18 L 10 -18 L 10 -10 L 5 -10 C 3 -10 2 -9 2 -6 L 2 -3 L 10 -3 L 9 4 L 2 4 L 2 20 L -6 20 L -6 4 L -11 4 L -11 -3 L -6 -3 L -6 -7 C -6 -14 -2 -18 4 -18 Z'));
+          } else if (item.icon === 'home') {
+            ctx.lineWidth = 3.5;
+            ctx.beginPath(); ctx.moveTo(-17, -2); ctx.lineTo(0, -17); ctx.lineTo(17, -2); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(-12, -1); ctx.lineTo(-12, 14); ctx.lineTo(-4, 14); ctx.lineTo(-4, 5); ctx.lineTo(4, 5); ctx.lineTo(4, 14); ctx.lineTo(12, 14); ctx.lineTo(12, -1); ctx.stroke();
+          } else {
+            ctx.lineWidth = 7;
+            ctx.beginPath(); ctx.moveTo(-10, -13); ctx.bezierCurveTo(-18, -6, 5, 17, 13, 10); ctx.stroke();
+          }
+          ctx.restore();
+          ctx.fillStyle = '#fff';
+          ctx.fillText(item.label, item.textX, 1046, item.max);
+        });
+        ctx.restore();
 
         ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
         const available = 280, width = 1640;
